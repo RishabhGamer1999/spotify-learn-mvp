@@ -1,27 +1,52 @@
-import { Play, Pause, RotateCcw, RotateCw } from 'lucide-react';
+import { Play, Pause, RotateCcw, RotateCw, Volume2, VolumeX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { usePlayer } from '@/contexts/PlayerContext';
 import { Slider } from '@/components/ui/slider';
-import { useState } from 'react';
+
+function formatTime(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
 
 export function BottomPlayer() {
-  const { currentTrack, isPlaying, togglePlayPause } = usePlayer();
-  const [progress, setProgress] = useState(30);
+  const { 
+    currentTrack, 
+    isPlaying, 
+    currentTime,
+    volume,
+    togglePlayPause,
+    seek,
+    skipForward,
+    skipBackward,
+    setVolume
+  } = usePlayer();
 
   if (!currentTrack) return null;
+
+  const progress = (currentTime / currentTrack.duration) * 100;
+
+  const handleProgressChange = (value: number[]) => {
+    const newTime = (value[0] / 100) * currentTrack.duration;
+    seek(newTime);
+  };
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border z-50">
       <div className="max-w-screen-xl mx-auto">
-        {/* Progress bar */}
+        {/* Progress bar with time */}
         <div className="px-4 pt-2">
           <Slider
             value={[progress]}
-            onValueChange={(value) => setProgress(value[0])}
+            onValueChange={handleProgressChange}
             max={100}
-            step={1}
+            step={0.1}
             className="w-full"
           />
+          <div className="flex justify-between text-xs text-muted-foreground mt-1">
+            <span>{formatTime(currentTime)}</span>
+            <span>{formatTime(currentTrack.duration)}</span>
+          </div>
         </div>
 
         <div className="flex items-center justify-between px-4 py-3">
@@ -46,7 +71,12 @@ export function BottomPlayer() {
 
           {/* Controls */}
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="text-muted-foreground hover:text-foreground relative"
+              onClick={skipBackward}
+            >
               <RotateCcw className="w-5 h-5" />
               <span className="absolute text-[10px] font-bold">10</span>
             </Button>
@@ -64,14 +94,35 @@ export function BottomPlayer() {
               )}
             </Button>
             
-            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="text-muted-foreground hover:text-foreground relative"
+              onClick={skipForward}
+            >
               <RotateCw className="w-5 h-5" />
               <span className="absolute text-[10px] font-bold">10</span>
             </Button>
           </div>
 
-          {/* Spacer for balance */}
-          <div className="flex-1" />
+          {/* Volume control */}
+          <div className="flex-1 flex justify-end items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-muted-foreground hover:text-foreground"
+              onClick={() => setVolume(volume > 0 ? 0 : 70)}
+            >
+              {volume === 0 ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+            </Button>
+            <Slider
+              value={[volume]}
+              onValueChange={(value) => setVolume(value[0])}
+              max={100}
+              step={1}
+              className="w-24"
+            />
+          </div>
         </div>
       </div>
     </div>

@@ -14,7 +14,7 @@ export function DailyPlaylist({ content }: DailyPlaylistProps) {
   const handlePlayAll = () => {
     if (content.songs.length > 0) {
       const firstSong = content.songs[0];
-      play({ id: firstSong.id, title: firstSong.title, artist: firstSong.artist, type: 'song' });
+      play({ id: firstSong.id, title: firstSong.title, artist: firstSong.artist, type: 'song', duration: firstSong.duration });
     }
   };
 
@@ -22,7 +22,7 @@ export function DailyPlaylist({ content }: DailyPlaylistProps) {
     if (currentTrack?.id === song.id && isPlaying) {
       togglePlayPause();
     } else {
-      play({ id: song.id, title: song.title, artist: song.artist, type: 'song' });
+      play({ id: song.id, title: song.title, artist: song.artist, type: 'song', duration: song.duration });
     }
   };
 

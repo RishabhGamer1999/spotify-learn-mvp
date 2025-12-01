@@ -14,7 +14,7 @@ export function PodcastCard({ podcast }: PodcastCardProps) {
     if (currentTrack?.id === podcast.id && isPlaying) {
       togglePlayPause();
     } else {
-      play({ id: podcast.id, title: podcast.title, artist: podcast.creator, type: 'podcast' });
+      play({ id: podcast.id, title: podcast.title, artist: podcast.creator, type: 'podcast', duration: podcast.duration });
     }
   };
 
