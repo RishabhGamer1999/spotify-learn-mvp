@@ -1,6 +1,7 @@
-import { Home, Target, BookOpen, Trophy, ShoppingBag } from 'lucide-react';
+import { Home, Target, BookOpen, Trophy, ShoppingBag, LogOut } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/useAuth';
 
 const navItems = [
   { icon: Home, label: 'Home', path: '/' },
@@ -11,6 +12,11 @@ const navItems = [
 ];
 
 export function Sidebar() {
+  const { user, signOut } = useAuth();
+
+  const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
+  const userInitial = userName.charAt(0).toUpperCase();
+
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 bg-card border-r border-border">
       <div className="flex h-full flex-col">
@@ -44,14 +50,21 @@ export function Sidebar() {
 
         {/* User Profile */}
         <div className="p-4 border-t border-border">
-          <div className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-surface-elevated transition-colors cursor-pointer">
+          <div className="flex items-center gap-3 px-3 py-2 rounded-lg">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-emerald-400 flex items-center justify-center text-primary-foreground font-bold">
-              S
+              {userInitial}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">sarah_learns</p>
+              <p className="text-sm font-medium text-foreground truncate">{userName}</p>
               <p className="text-xs text-muted-foreground">18 day streak 🔥</p>
             </div>
+            <button
+              onClick={signOut}
+              className="p-2 rounded-lg hover:bg-surface-elevated text-muted-foreground hover:text-foreground transition-colors"
+              title="Log out"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </div>
