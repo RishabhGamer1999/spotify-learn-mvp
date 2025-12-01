@@ -1,12 +1,25 @@
-import { Play, Clock, Bookmark } from 'lucide-react';
+import { Play, Clock, Bookmark, Pause } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PodcastClip, formatDuration } from '@/data/learningData';
+import { usePlayer } from '@/contexts/PlayerContext';
 
 interface PodcastCardProps {
   podcast: PodcastClip;
 }
 
 export function PodcastCard({ podcast }: PodcastCardProps) {
+  const { play, currentTrack, isPlaying, togglePlayPause } = usePlayer();
+
+  const handlePlay = () => {
+    if (currentTrack?.id === podcast.id && isPlaying) {
+      togglePlayPause();
+    } else {
+      play({ id: podcast.id, title: podcast.title, artist: podcast.creator, type: 'podcast' });
+    }
+  };
+
+  const isPodcastPlaying = currentTrack?.id === podcast.id && isPlaying;
+
   return (
     <div className="rounded-2xl bg-card border border-border p-5">
       <div className="flex items-start gap-4">
@@ -49,9 +62,18 @@ export function PodcastCard({ podcast }: PodcastCardProps) {
       </div>
 
       <div className="flex gap-3 mt-5">
-        <Button variant="spotify" className="flex-1">
-          <Play className="w-4 h-4 mr-1" fill="currentColor" />
-          Play Episode
+        <Button variant="spotify" className="flex-1" onClick={handlePlay}>
+          {isPodcastPlaying ? (
+            <>
+              <Pause className="w-4 h-4 mr-1" fill="currentColor" />
+              Pause Episode
+            </>
+          ) : (
+            <>
+              <Play className="w-4 h-4 mr-1" fill="currentColor" />
+              Play Episode
+            </>
+          )}
         </Button>
         <Button variant="outline" size="icon">
           <Bookmark className="w-4 h-4" />
