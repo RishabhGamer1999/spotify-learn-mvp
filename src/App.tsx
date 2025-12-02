@@ -11,6 +11,7 @@ import Goals from "./pages/Goals";
 import Learning from "./pages/Learning";
 import Achievements from "./pages/Achievements";
 import Courses from "./pages/Courses";
+import AudioUpload from "./pages/AudioUpload";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -54,6 +55,7 @@ function AppRoutes() {
         <Route path="/learning" element={<ProtectedRoute><Learning /></ProtectedRoute>} />
         <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
         <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
+        <Route path="/audio-upload" element={<ProtectedRoute><AudioUpload /></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       {user && <BottomPlayer />}

@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      audio_courses: {
+        Row: {
+          artist: string
+          category: string | null
+          created_at: string
+          description: string | null
+          duration: number
+          id: string
+          storage_path: string
+          thumbnail_url: string | null
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          artist: string
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          duration: number
+          id?: string
+          storage_path: string
+          thumbnail_url?: string | null
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          artist?: string
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          duration?: number
+          id?: string
+          storage_path?: string
+          thumbnail_url?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string

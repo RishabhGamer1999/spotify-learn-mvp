@@ -6,6 +6,7 @@ interface Track {
   artist: string;
   type: 'song' | 'podcast';
   duration: number; // in seconds
+  audioUrl?: string; // URL to the actual audio file
 }
 
 interface PlayerContextType {
@@ -33,6 +34,45 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const [currentTime, setCurrentTime] = useState(0);
   const [volume, setVolumeState] = useState(70);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Initialize audio element
+  useEffect(() => {
+    audioRef.current = new Audio();
+    audioRef.current.volume = volume / 100;
+
+    // Update currentTime when audio plays
+    const handleTimeUpdate = () => {
+      if (audioRef.current) {
+        setCurrentTime(audioRef.current.currentTime);
+      }
+    };
+
+    // Handle when audio ends
+    const handleEnded = () => {
+      setIsPlaying(false);
+      setCurrentTime(0);
+    };
+
+    audioRef.current.addEventListener('timeupdate', handleTimeUpdate);
+    audioRef.current.addEventListener('ended', handleEnded);
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.removeEventListener('timeupdate', handleTimeUpdate);
+        audioRef.current.removeEventListener('ended', handleEnded);
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+
+  // Update audio volume when volume state changes
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume / 100;
+    }
+  }, [volume]);
 
   // Save progress when track changes or pauses
   useEffect(() => {
@@ -69,45 +109,72 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const play = (track: Track) => {
     if (currentTrack?.id === track.id) {
       // Resume same track
+      if (audioRef.current) {
+        audioRef.current.play();
+      }
       setIsPlaying(true);
     } else {
       // Save current track progress before switching
       if (currentTrack) {
         trackProgress[currentTrack.id] = currentTime;
       }
-      // Load saved progress or start from 0
-      const savedProgress = trackProgress[track.id] || 0;
+      
+      // Load new track
       setCurrentTrack(track);
+      const savedProgress = trackProgress[track.id] || 0;
       setCurrentTime(savedProgress);
-      setIsPlaying(true);
+      
+      if (audioRef.current && track.audioUrl) {
+        audioRef.current.src = track.audioUrl;
+        audioRef.current.currentTime = savedProgress;
+        audioRef.current.play();
+        setIsPlaying(true);
+      } else {
+        // Fallback for tracks without audio URL (simulated playback)
+        setIsPlaying(true);
+      }
     }
   };
 
   const pause = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
     setIsPlaying(false);
   };
 
   const togglePlayPause = () => {
-    setIsPlaying(!isPlaying);
+    if (isPlaying) {
+      pause();
+    } else if (currentTrack) {
+      play(currentTrack);
+    }
   };
 
   const seek = (time: number) => {
     if (currentTrack) {
       const clampedTime = Math.max(0, Math.min(time, currentTrack.duration));
       setCurrentTime(clampedTime);
+      if (audioRef.current) {
+        audioRef.current.currentTime = clampedTime;
+      }
     }
   };
 
   const skipForward = () => {
-    if (currentTrack) {
+    if (currentTrack && audioRef.current) {
       const newTime = Math.min(currentTime + 10, currentTrack.duration);
+      audioRef.current.currentTime = newTime;
       setCurrentTime(newTime);
     }
   };
 
   const skipBackward = () => {
-    const newTime = Math.max(currentTime - 10, 0);
-    setCurrentTime(newTime);
+    if (audioRef.current) {
+      const newTime = Math.max(currentTime - 10, 0);
+      audioRef.current.currentTime = newTime;
+      setCurrentTime(newTime);
+    }
   };
 
   const setVolume = (vol: number) => {

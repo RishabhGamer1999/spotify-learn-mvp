@@ -1,4 +1,4 @@
-import { Home, Target, BookOpen, Trophy, ShoppingBag, LogOut } from 'lucide-react';
+import { Home, Target, BookOpen, Trophy, ShoppingBag, LogOut, Upload } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -9,6 +9,7 @@ const navItems = [
   { icon: BookOpen, label: 'My Learning', path: '/learning' },
   { icon: Trophy, label: 'Achievements', path: '/achievements' },
   { icon: ShoppingBag, label: 'Courses', path: '/courses' },
+  { icon: Upload, label: 'Audio Upload', path: '/audio-upload' },
 ];
 
 export function Sidebar() {
