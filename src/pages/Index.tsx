@@ -106,13 +106,7 @@ const Index = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           {/* Progress Card - spans 2 columns */}
           <div className="lg:col-span-2">
-            {userProgress ? (
-              <ProgressCard progress={userProgress} />
-            ) : (
-              <div className="bg-card rounded-lg p-6 text-center text-muted-foreground">
-                Start your first learning goal to track your progress!
-              </div>
-            )}
+            <ProgressCard progress={userProgress} />
           </div>
 
           {/* Badge Showcase */}
