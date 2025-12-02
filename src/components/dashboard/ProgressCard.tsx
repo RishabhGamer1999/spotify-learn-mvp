@@ -4,10 +4,12 @@ import { Button } from '@/components/ui/button';
 import { UserProgress, learningGoals } from '@/data/learningData';
 
 interface ProgressCardProps {
-  progress: UserProgress;
+  progress: UserProgress | null;
 }
 
 export function ProgressCard({ progress }: ProgressCardProps) {
+  if (!progress) return null;
+  
   const goal = learningGoals.find(g => g.id === progress.goalId);
   if (!goal) return null;
 
