@@ -38,6 +38,81 @@ export type Database = {
         }
         Relationships: []
       }
+      user_badges: {
+        Row: {
+          badge_id: string
+          badge_name: string
+          created_at: string
+          criteria: string
+          earned_date: string
+          id: string
+          tier: string
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          badge_name: string
+          created_at?: string
+          criteria: string
+          earned_date?: string
+          id?: string
+          tier: string
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          badge_name?: string
+          created_at?: string
+          criteria?: string
+          earned_date?: string
+          id?: string
+          tier?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_progress: {
+        Row: {
+          completion_percentage: number
+          created_at: string
+          current_day: number
+          goal_id: string
+          id: string
+          last_activity: string
+          status: string
+          streak_count: number
+          total_listening_minutes: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completion_percentage?: number
+          created_at?: string
+          current_day?: number
+          goal_id: string
+          id?: string
+          last_activity?: string
+          status?: string
+          streak_count?: number
+          total_listening_minutes?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completion_percentage?: number
+          created_at?: string
+          current_day?: number
+          goal_id?: string
+          id?: string
+          last_activity?: string
+          status?: string
+          streak_count?: number
+          total_listening_minutes?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
