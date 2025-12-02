@@ -32,7 +32,7 @@ export function BottomPlayer() {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border z-50">
+    <div className="fixed bottom-0 left-64 right-0 bg-card border-t border-border z-50">
       <div className="max-w-screen-xl mx-auto">
         {/* Progress bar with time */}
         <div className="px-4 pt-2">
