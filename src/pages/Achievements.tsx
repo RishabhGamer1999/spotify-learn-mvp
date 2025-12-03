@@ -1,5 +1,6 @@
 import { MainLayout } from '@/components/layout/MainLayout';
-import { badges, gamification } from '@/data/learningData';
+import { useUserStats } from '@/hooks/useUserStats';
+import { gamification } from '@/data/learningData';
 import { cn } from '@/lib/utils';
 import { Trophy, Lock, CheckCircle2, Zap, Target, Award } from 'lucide-react';
 
@@ -25,8 +26,18 @@ const tierGlow = {
 };
 
 const Achievements = () => {
+  const { badges, totalPoints, goalsCompleted, loading } = useUserStats();
   const earnedBadges = badges.filter(b => b.earned);
-  const totalPoints = earnedBadges.length * 500 + 1800; // Sample points calculation
+
+  if (loading) {
+    return (
+      <MainLayout>
+        <div className="p-8 max-w-7xl mx-auto flex items-center justify-center min-h-[50vh]">
+          <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+        </div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>
@@ -74,7 +85,7 @@ const Achievements = () => {
                 <Target className="w-7 h-7 text-emerald-500" />
               </div>
               <div>
-                <p className="text-3xl font-bold text-foreground">0</p>
+                <p className="text-3xl font-bold text-foreground">{goalsCompleted}</p>
                 <p className="text-sm text-muted-foreground">Goals Completed</p>
               </div>
             </div>

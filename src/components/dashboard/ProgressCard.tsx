@@ -1,14 +1,28 @@
 import { Flame, Clock, Calendar } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { UserProgress, learningGoals } from '@/data/learningData';
+import { UserProgress, Badge, learningGoals } from '@/data/learningData';
 
 interface ProgressCardProps {
   progress: UserProgress | null;
+  badges: Badge[];
 }
 
-export function ProgressCard({ progress }: ProgressCardProps) {
-  if (!progress) return null;
+export function ProgressCard({ progress, badges }: ProgressCardProps) {
+  const earnedBadges = badges.filter(b => b.earned);
+
+  if (!progress) {
+    return (
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-hero p-6 border border-border">
+        <div className="relative z-10 text-center py-8">
+          <p className="text-lg text-muted-foreground mb-4">No active learning goal</p>
+          <Button variant="spotify" size="lg">
+            Start a Learning Goal
+          </Button>
+        </div>
+      </div>
+    );
+  }
   
   const goal = learningGoals.find(g => g.id === progress.goalId);
   if (!goal) return null;
@@ -67,7 +81,7 @@ export function ProgressCard({ progress }: ProgressCardProps) {
               <span className="text-lg">🏆</span>
             </div>
             <div>
-              <p className="text-lg font-bold text-foreground">2</p>
+              <p className="text-lg font-bold text-foreground">{earnedBadges.length}</p>
               <p className="text-xs text-muted-foreground">Badges</p>
             </div>
           </div>
