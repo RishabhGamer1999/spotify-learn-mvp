@@ -2,6 +2,7 @@ import { Home, Target, BookOpen, Trophy, ShoppingBag, LogOut } from 'lucide-reac
 import { NavLink } from '@/components/NavLink';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserStats } from '@/hooks/useUserStats';
 
 const navItems = [
   { icon: Home, label: 'Home', path: '/' },
@@ -13,9 +14,11 @@ const navItems = [
 
 export function Sidebar() {
   const { user, signOut } = useAuth();
+  const { progress } = useUserStats();
 
   const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
   const userInitial = userName.charAt(0).toUpperCase();
+  const streakCount = progress?.streakCount || 0;
 
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 bg-card border-r border-border">
@@ -56,7 +59,9 @@ export function Sidebar() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground truncate">{userName}</p>
-              <p className="text-xs text-muted-foreground">18 day streak 🔥</p>
+              <p className="text-xs text-muted-foreground">
+                {streakCount > 0 ? `${streakCount} day streak 🔥` : 'Start your streak!'}
+              </p>
             </div>
             <button
               onClick={signOut}

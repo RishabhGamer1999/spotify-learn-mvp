@@ -4,11 +4,10 @@ import { DailyPlaylist } from '@/components/dashboard/DailyPlaylist';
 import { PodcastCard } from '@/components/dashboard/PodcastCard';
 import { BadgeShowcase } from '@/components/dashboard/BadgeShowcase';
 import { GoalCard } from '@/components/goals/GoalCard';
-import { dailyContentDay1, learningGoals, UserProgress, Badge } from '@/data/learningData';
+import { dailyContentDay1, learningGoals } from '@/data/learningData';
 import { Sparkles } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
-import { useEffect, useState } from 'react';
+import { useUserStats } from '@/hooks/useUserStats';
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -19,65 +18,11 @@ const getGreeting = () => {
 
 const Index = () => {
   const { user } = useAuth();
-  const [userProgress, setUserProgress] = useState<UserProgress | null>(null);
-  const [badges, setBadges] = useState<Badge[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { progress, badges, loading } = useUserStats();
   
   const recommendedGoals = learningGoals.slice(0, 3);
   const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
   const greeting = getGreeting();
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      if (!user) return;
-      
-      try {
-        // Fetch user progress
-        const { data: progressData } = await supabase
-          .from('user_progress')
-          .select('*')
-          .eq('user_id', user.id)
-          .eq('status', 'active')
-          .maybeSingle();
-
-        if (progressData) {
-          setUserProgress({
-            goalId: progressData.goal_id,
-            currentDay: progressData.current_day,
-            status: progressData.status as 'active' | 'paused' | 'completed',
-            completionPercentage: progressData.completion_percentage,
-            streakCount: progressData.streak_count,
-            totalListeningMinutes: progressData.total_listening_minutes,
-            lastActivity: progressData.last_activity,
-          });
-        }
-
-        // Fetch user badges
-        const { data: badgesData } = await supabase
-          .from('user_badges')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('earned_date', { ascending: false });
-
-        if (badgesData) {
-          setBadges(badgesData.map(b => ({
-            id: b.badge_id,
-            name: b.badge_name,
-            tier: b.tier as 'bronze' | 'silver' | 'gold' | 'platinum',
-            criteria: b.criteria,
-            earned: true,
-            earnedDate: b.earned_date,
-          })));
-        }
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserData();
-  }, [user]);
 
   if (loading) {
     return (
@@ -106,7 +51,7 @@ const Index = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           {/* Progress Card - spans 2 columns */}
           <div className="lg:col-span-2">
-            <ProgressCard progress={userProgress} />
+            <ProgressCard progress={progress} badges={badges} />
           </div>
 
           {/* Badge Showcase */}
