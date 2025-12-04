@@ -6,8 +6,8 @@ import { BadgeShowcase } from '@/components/dashboard/BadgeShowcase';
 import { GoalCard } from '@/components/goals/GoalCard';
 import { dailyContentDay1, learningGoals } from '@/data/learningData';
 import { Sparkles } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
 import { useUserStats } from '@/hooks/useUserStats';
+import { useUserProfile } from '@/hooks/useUserProfile';
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -17,11 +17,11 @@ const getGreeting = () => {
 };
 
 const Index = () => {
-  const { user } = useAuth();
   const { progress, badges, loading } = useUserStats();
+  const { profile } = useUserProfile();
   
   const recommendedGoals = learningGoals.slice(0, 3);
-  const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
+  const userName = profile?.name || 'User';
   const greeting = getGreeting();
 
   if (loading) {
