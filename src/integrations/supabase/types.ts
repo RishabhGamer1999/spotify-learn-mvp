@@ -59,22 +59,28 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          date_of_birth: string | null
           id: string
-          name: string
+          name: string | null
+          onboarding_completed: boolean
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
+          date_of_birth?: string | null
           id?: string
-          name: string
+          name?: string | null
+          onboarding_completed?: boolean
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
+          date_of_birth?: string | null
           id?: string
-          name?: string
+          name?: string | null
+          onboarding_completed?: boolean
           updated_at?: string
           user_id?: string
         }
@@ -109,6 +115,36 @@ export type Database = {
           earned_date?: string
           id?: string
           tier?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          created_at: string
+          goal_frequency: string
+          id: string
+          learning_purpose: string | null
+          selected_categories: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          goal_frequency?: string
+          id?: string
+          learning_purpose?: string | null
+          selected_categories?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          goal_frequency?: string
+          id?: string
+          learning_purpose?: string | null
+          selected_categories?: string[] | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []

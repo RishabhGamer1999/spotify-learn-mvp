@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useUserStats } from '@/hooks/useUserStats';
 
 const navItems = [
-  { icon: Home, label: 'Home', path: '/' },
+  { icon: Home, label: 'Home', path: '/home' },
   { icon: Target, label: 'Goals', path: '/goals' },
   { icon: BookOpen, label: 'My Learning', path: '/learning' },
   { icon: Trophy, label: 'Achievements', path: '/achievements' },
