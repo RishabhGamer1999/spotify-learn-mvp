@@ -22,7 +22,19 @@ export function BottomPlayer() {
     setVolume
   } = usePlayer();
 
-  if (!currentTrack) return null;
+  // Empty state when no track is selected
+  if (!currentTrack) {
+    return (
+      <div className="fixed bottom-0 left-64 right-0 bg-card border-t border-border z-50">
+        <div className="max-w-screen-xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-center gap-3 text-muted-foreground">
+            <Play className="w-5 h-5" />
+            <span className="text-sm">Select a lesson or podcast to start learning</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const progress = (currentTime / currentTrack.duration) * 100;
 

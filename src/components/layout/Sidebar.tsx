@@ -3,6 +3,7 @@ import { NavLink } from '@/components/NavLink';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserStats } from '@/hooks/useUserStats';
+import { useUserProfile } from '@/hooks/useUserProfile';
 
 const navItems = [
   { icon: Home, label: 'Home', path: '/home' },
@@ -13,10 +14,11 @@ const navItems = [
 ];
 
 export function Sidebar() {
-  const { user, signOut } = useAuth();
+  const { signOut } = useAuth();
   const { progress } = useUserStats();
+  const { profile } = useUserProfile();
 
-  const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
+  const userName = profile?.name || 'User';
   const userInitial = userName.charAt(0).toUpperCase();
   const streakCount = progress?.streakCount || 0;
 
