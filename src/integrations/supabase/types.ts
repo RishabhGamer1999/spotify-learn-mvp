@@ -56,6 +56,36 @@ export type Database = {
         }
         Relationships: []
       }
+      learning_activity: {
+        Row: {
+          activity_date: string
+          courses_completed: number
+          created_at: string
+          id: string
+          minutes_learned: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activity_date?: string
+          courses_completed?: number
+          created_at?: string
+          id?: string
+          minutes_learned?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activity_date?: string
+          courses_completed?: number
+          created_at?: string
+          id?: string
+          minutes_learned?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -122,27 +152,33 @@ export type Database = {
       user_preferences: {
         Row: {
           created_at: string
+          daily_minutes_goal: number
           goal_frequency: string
           id: string
           learning_purpose: string | null
+          monthly_courses_goal: number
           selected_categories: string[] | null
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
+          daily_minutes_goal?: number
           goal_frequency?: string
           id?: string
           learning_purpose?: string | null
+          monthly_courses_goal?: number
           selected_categories?: string[] | null
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
+          daily_minutes_goal?: number
           goal_frequency?: string
           id?: string
           learning_purpose?: string | null
+          monthly_courses_goal?: number
           selected_categories?: string[] | null
           updated_at?: string
           user_id?: string

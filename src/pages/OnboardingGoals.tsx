@@ -1,206 +1,258 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, Calendar, Clock, Briefcase, Heart, Lightbulb, Palette, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-
-const frequencies = [
-  { id: 'daily', label: 'Daily', description: 'Learn every day for consistent progress', icon: Calendar },
-  { id: 'weekly', label: 'Weekly', description: 'Learn at your own pace each week', icon: Clock },
-];
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
+import { Slider } from '@/components/ui/slider';
+import { 
+  Clock, 
+  Target, 
+  Briefcase, 
+  User, 
+  Lightbulb, 
+  Palette, 
+  Compass,
+  BookOpen,
+  Loader2,
+  Check
+} from 'lucide-react';
 
 const purposes = [
-  { id: 'career', label: 'Career Advancement', icon: Briefcase },
-  { id: 'personal', label: 'Personal Growth', icon: Heart },
-  { id: 'skill', label: 'Skill Development', icon: Target },
-  { id: 'hobby', label: 'Hobby Exploration', icon: Palette },
-  { id: 'curiosity', label: 'Just Curious', icon: Lightbulb },
+  { id: 'career', label: 'Career Growth', icon: Briefcase },
+  { id: 'personal', label: 'Personal Development', icon: User },
+  { id: 'skill', label: 'New Skills', icon: Lightbulb },
+  { id: 'hobby', label: 'Hobby & Fun', icon: Palette },
+  { id: 'curiosity', label: 'Curiosity', icon: Compass },
 ];
 
 const categories = [
-  { id: 'communication', label: 'Communication', emoji: '🗣️' },
+  { id: 'communication', label: 'Communication', emoji: '💬' },
   { id: 'language', label: 'Language Learning', emoji: '🌍' },
-  { id: 'wellness', label: 'Wellness', emoji: '🧘' },
-  { id: 'finance', label: 'Finance', emoji: '💰' },
-  { id: 'technology', label: 'Technology', emoji: '💻' },
-  { id: 'business', label: 'Business', emoji: '💼' },
+  { id: 'wellness', label: 'Wellness & Mindfulness', emoji: '🧘' },
   { id: 'creative', label: 'Creative Arts', emoji: '🎨' },
-  { id: 'fitness', label: 'Fitness', emoji: '🏃' },
-  { id: 'development', label: 'Personal Development', emoji: '🌱' },
+  { id: 'finance', label: 'Finance & Investing', emoji: '💰' },
+  { id: 'fitness', label: 'Fitness & Health', emoji: '💪' },
+  { id: 'business', label: 'Business & Leadership', emoji: '📊' },
+  { id: 'technology', label: 'Technology', emoji: '💻' },
+  { id: 'personal', label: 'Personal Development', emoji: '🌱' },
 ];
 
 export default function OnboardingGoals() {
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
-  const [selectedFrequency, setSelectedFrequency] = useState('daily');
-  const [selectedPurpose, setSelectedPurpose] = useState('');
+  const { user, loading: authLoading } = useAuth();
+  
+  const [dailyMinutes, setDailyMinutes] = useState(30);
+  const [monthlyCourses, setMonthlyCourses] = useState(2);
+  const [selectedPurpose, setSelectedPurpose] = useState<string | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState(1);
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!authLoading && !user) {
       navigate('/');
     }
-  }, [user, loading, navigate]);
+  }, [user, authLoading, navigate]);
 
   const toggleCategory = (categoryId: string) => {
-    setSelectedCategories(prev =>
-      prev.includes(categoryId)
+    setSelectedCategories(prev => 
+      prev.includes(categoryId) 
         ? prev.filter(c => c !== categoryId)
         : [...prev, categoryId]
     );
   };
 
   const handleComplete = async () => {
-    if (!selectedPurpose) {
-      toast({ title: 'Please select why you want to learn', variant: 'destructive' });
-      return;
-    }
-    if (selectedCategories.length === 0) {
-      toast({ title: 'Please select at least one category', variant: 'destructive' });
-      return;
-    }
-
+    if (!user) return;
+    
     setIsLoading(true);
     try {
-      // Save user preferences
-      const { error: prefError } = await supabase
+      // Save preferences
+      const { error: prefsError } = await supabase
         .from('user_preferences')
         .upsert({
-          user_id: user!.id,
-          goal_frequency: selectedFrequency,
+          user_id: user.id,
+          daily_minutes_goal: dailyMinutes,
+          monthly_courses_goal: monthlyCourses,
+          goal_frequency: 'daily',
           learning_purpose: selectedPurpose,
-          selected_categories: selectedCategories
+          selected_categories: selectedCategories,
         }, { onConflict: 'user_id' });
 
-      if (prefError) throw prefError;
+      if (prefsError) throw prefsError;
 
       // Mark onboarding as complete
       const { error: profileError } = await supabase
         .from('profiles')
         .update({ onboarding_completed: true })
-        .eq('user_id', user!.id);
+        .eq('user_id', user.id);
 
       if (profileError) throw profileError;
 
-      toast({ title: 'Welcome aboard! 🎉', description: 'Your learning journey begins now.' });
+      toast.success('Welcome aboard! Your learning journey begins now.');
       navigate('/home');
-    } catch (error: any) {
-      console.error('Error:', error);
-      toast({ 
-        title: 'Something went wrong', 
-        description: error.message,
-        variant: 'destructive' 
-      });
+    } catch (error) {
+      console.error('Error saving preferences:', error);
+      toast.error('Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  if (loading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex flex-col items-center justify-center p-6">
-      <div className="w-full max-w-2xl space-y-8">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="w-full max-w-2xl">
         {/* Progress indicator */}
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex justify-center gap-2 mb-8">
           {[1, 2, 3].map((s) => (
             <div
               key={s}
               className={cn(
-                "h-2 rounded-full transition-all",
-                s <= step ? "bg-primary w-12" : "bg-muted w-8"
+                "w-3 h-3 rounded-full transition-all duration-300",
+                s === step ? "bg-primary w-8" : s < step ? "bg-primary" : "bg-muted"
               )}
             />
           ))}
         </div>
 
-        {/* Step 1: Frequency */}
+        {/* Step 1: Learning Goals */}
         {step === 1 && (
-          <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="text-center space-y-2">
-              <h1 className="text-3xl font-bold">How often do you want to learn?</h1>
-              <p className="text-muted-foreground">Choose a pace that fits your lifestyle</p>
+          <div className="space-y-8 animate-in fade-in duration-500">
+            <div className="text-center">
+              <h1 className="text-3xl font-bold text-foreground mb-2">Set Your Learning Goals</h1>
+              <p className="text-muted-foreground">How much time can you dedicate to learning?</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {frequencies.map((freq) => (
-                <button
-                  key={freq.id}
-                  onClick={() => setSelectedFrequency(freq.id)}
-                  className={cn(
-                    "p-6 rounded-xl border-2 text-left transition-all hover:border-primary/50",
-                    selectedFrequency === freq.id
-                      ? "border-primary bg-primary/5"
-                      : "border-border bg-card"
-                  )}
-                >
-                  <freq.icon className={cn(
-                    "w-8 h-8 mb-3",
-                    selectedFrequency === freq.id ? "text-primary" : "text-muted-foreground"
-                  )} />
-                  <h3 className="text-xl font-semibold">{freq.label}</h3>
-                  <p className="text-sm text-muted-foreground mt-1">{freq.description}</p>
-                </button>
-              ))}
+            {/* Daily Minutes Goal */}
+            <div className="bg-card rounded-2xl p-6 border border-border">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
+                  <Clock className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground">Daily Learning Goal</h3>
+                  <p className="text-sm text-muted-foreground">Minutes per day</p>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">15 min</span>
+                  <span className="text-3xl font-bold text-primary">{dailyMinutes} min</span>
+                  <span className="text-sm text-muted-foreground">120 min</span>
+                </div>
+                <Slider
+                  value={[dailyMinutes]}
+                  onValueChange={(value) => setDailyMinutes(value[0])}
+                  min={15}
+                  max={120}
+                  step={5}
+                  className="w-full"
+                />
+              </div>
             </div>
 
-            <Button onClick={() => setStep(2)} className="w-full h-12 text-lg" size="lg">
+            {/* Monthly Courses Goal */}
+            <div className="bg-card rounded-2xl p-6 border border-border">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
+                  <BookOpen className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground">Monthly Course Goal</h3>
+                  <p className="text-sm text-muted-foreground">Courses to complete per month</p>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">1 course</span>
+                  <span className="text-3xl font-bold text-primary">{monthlyCourses} {monthlyCourses === 1 ? 'course' : 'courses'}</span>
+                  <span className="text-sm text-muted-foreground">10 courses</span>
+                </div>
+                <Slider
+                  value={[monthlyCourses]}
+                  onValueChange={(value) => setMonthlyCourses(value[0])}
+                  min={1}
+                  max={10}
+                  step={1}
+                  className="w-full"
+                />
+              </div>
+            </div>
+
+            <Button 
+              className="w-full h-14 text-lg font-semibold"
+              onClick={() => setStep(2)}
+            >
               Continue
             </Button>
           </div>
         )}
 
-        {/* Step 2: Purpose */}
+        {/* Step 2: Learning Purpose */}
         {step === 2 && (
-          <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="text-center space-y-2">
-              <h1 className="text-3xl font-bold">Why do you want to learn?</h1>
-              <p className="text-muted-foreground">This helps us personalize your experience</p>
+          <div className="space-y-8 animate-in fade-in duration-500">
+            <div className="text-center">
+              <h1 className="text-3xl font-bold text-foreground mb-2">What's Your Purpose?</h1>
+              <p className="text-muted-foreground">Help us understand why you want to learn</p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {purposes.map((purpose) => (
-                <button
-                  key={purpose.id}
-                  onClick={() => setSelectedPurpose(purpose.id)}
-                  className={cn(
-                    "p-4 rounded-xl border-2 flex items-center gap-3 transition-all hover:border-primary/50",
-                    selectedPurpose === purpose.id
-                      ? "border-primary bg-primary/5"
-                      : "border-border bg-card"
-                  )}
-                >
-                  <purpose.icon className={cn(
-                    "w-6 h-6",
-                    selectedPurpose === purpose.id ? "text-primary" : "text-muted-foreground"
-                  )} />
-                  <span className="font-medium">{purpose.label}</span>
-                  {selectedPurpose === purpose.id && (
-                    <Check className="w-5 h-5 text-primary ml-auto" />
-                  )}
-                </button>
-              ))}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {purposes.map((purpose) => {
+                const Icon = purpose.icon;
+                const isSelected = selectedPurpose === purpose.id;
+                return (
+                  <button
+                    key={purpose.id}
+                    onClick={() => setSelectedPurpose(purpose.id)}
+                    className={cn(
+                      "flex items-center gap-4 p-4 rounded-xl border-2 transition-all duration-200",
+                      isSelected 
+                        ? "border-primary bg-primary/10" 
+                        : "border-border bg-card hover:border-primary/50"
+                    )}
+                  >
+                    <div className={cn(
+                      "w-12 h-12 rounded-xl flex items-center justify-center",
+                      isSelected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                    )}>
+                      <Icon className="w-6 h-6" />
+                    </div>
+                    <span className={cn(
+                      "font-medium",
+                      isSelected ? "text-primary" : "text-foreground"
+                    )}>
+                      {purpose.label}
+                    </span>
+                    {isSelected && <Check className="w-5 h-5 text-primary ml-auto" />}
+                  </button>
+                );
+              })}
             </div>
 
-            <div className="flex gap-3">
-              <Button variant="outline" onClick={() => setStep(1)} className="flex-1 h-12">
+            <div className="flex gap-4">
+              <Button 
+                variant="outline"
+                className="flex-1 h-14"
+                onClick={() => setStep(1)}
+              >
                 Back
               </Button>
               <Button 
-                onClick={() => setStep(3)} 
+                className="flex-1 h-14 text-lg font-semibold"
+                onClick={() => setStep(3)}
                 disabled={!selectedPurpose}
-                className="flex-1 h-12 text-lg"
               >
                 Continue
               </Button>
@@ -210,46 +262,62 @@ export default function OnboardingGoals() {
 
         {/* Step 3: Categories */}
         {step === 3 && (
-          <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="text-center space-y-2">
-              <h1 className="text-3xl font-bold">What do you want to learn?</h1>
-              <p className="text-muted-foreground">Select one or more categories that interest you</p>
+          <div className="space-y-8 animate-in fade-in duration-500">
+            <div className="text-center">
+              <h1 className="text-3xl font-bold text-foreground mb-2">Pick Your Interests</h1>
+              <p className="text-muted-foreground">Select topics you'd like to explore</p>
             </div>
 
-            <div className="flex flex-wrap gap-3 justify-center">
-              {categories.map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() => toggleCategory(category.id)}
-                  className={cn(
-                    "px-5 py-3 rounded-full border-2 flex items-center gap-2 transition-all hover:border-primary/50",
-                    selectedCategories.includes(category.id)
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-border bg-card"
-                  )}
-                >
-                  <span className="text-xl">{category.emoji}</span>
-                  <span className="font-medium">{category.label}</span>
-                  {selectedCategories.includes(category.id) && (
-                    <Check className="w-4 h-4" />
-                  )}
-                </button>
-              ))}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {categories.map((category) => {
+                const isSelected = selectedCategories.includes(category.id);
+                return (
+                  <button
+                    key={category.id}
+                    onClick={() => toggleCategory(category.id)}
+                    className={cn(
+                      "flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-200",
+                      isSelected 
+                        ? "border-primary bg-primary/10" 
+                        : "border-border bg-card hover:border-primary/50"
+                    )}
+                  >
+                    <span className="text-2xl">{category.emoji}</span>
+                    <span className={cn(
+                      "text-sm font-medium text-center",
+                      isSelected ? "text-primary" : "text-foreground"
+                    )}>
+                      {category.label}
+                    </span>
+                    {isSelected && <Check className="w-4 h-4 text-primary" />}
+                  </button>
+                );
+              })}
             </div>
 
-            <div className="flex gap-3">
-              <Button variant="outline" onClick={() => setStep(2)} className="flex-1 h-12">
+            <div className="flex gap-4">
+              <Button 
+                variant="outline"
+                className="flex-1 h-14"
+                onClick={() => setStep(2)}
+              >
                 Back
               </Button>
               <Button 
-                onClick={handleComplete} 
-                disabled={isLoading || selectedCategories.length === 0}
-                className="flex-1 h-12 text-lg"
+                className="flex-1 h-14 text-lg font-semibold"
+                onClick={handleComplete}
+                disabled={selectedCategories.length === 0 || isLoading}
               >
                 {isLoading ? (
-                  <div className="animate-spin w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full" />
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    Setting up...
+                  </>
                 ) : (
-                  "Start Learning"
+                  <>
+                    <Target className="w-5 h-5 mr-2" />
+                    Start Learning
+                  </>
                 )}
               </Button>
             </div>
