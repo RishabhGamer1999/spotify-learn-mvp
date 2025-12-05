@@ -2,7 +2,7 @@
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/aaf749ed-0748-4012-9a1c-2df5df1efdb1
+**URL**: [https://lovable.dev/projects/aaf749ed-0748-4012-9a1c-2df5df1efdb1](https://spotify-learn-mvp.lovable.app)
 
 ## How can I edit this code?
 
