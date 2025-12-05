@@ -103,7 +103,7 @@ export default function Welcome() {
                   {dateOfBirth ? format(dateOfBirth, "PPP") : "Select your date of birth"}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
+              <PopoverContent className="w-auto p-0 z-50 bg-card" align="start">
                 <Calendar
                   mode="single"
                   selected={dateOfBirth}
