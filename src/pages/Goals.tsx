@@ -40,15 +40,15 @@ const Goals = () => {
 
   return (
     <MainLayout>
-      <div className="p-8 max-w-6xl mx-auto">
+      <div className="p-4 md:p-8 max-w-6xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Your Goals</h1>
-          <p className="text-muted-foreground">Track your learning progress and stay motivated</p>
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">Your Goals</h1>
+          <p className="text-sm md:text-base text-muted-foreground">Track your learning progress and stay motivated</p>
         </div>
 
         {/* Goal Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
           {/* Daily Learning Card */}
           <Card className="bg-card border-border">
             <CardHeader className="pb-2">
@@ -109,7 +109,7 @@ const Goals = () => {
         </div>
 
         {/* Calendar and Chart Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
           {/* Streak Calendar */}
           <Card className="bg-card border-border">
             <CardHeader>
