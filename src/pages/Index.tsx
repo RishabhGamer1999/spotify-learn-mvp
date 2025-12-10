@@ -36,19 +36,19 @@ const Index = () => {
 
   return (
     <MainLayout>
-      <div className="p-8 max-w-7xl mx-auto">
+      <div className="p-4 md:p-8 max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
             {greeting}, {userName}! 👋
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm md:text-base text-muted-foreground">
             You're making great progress. Let's keep the momentum going!
           </p>
         </div>
 
         {/* Main Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
           {/* Progress Card - spans 2 columns */}
           <div className="lg:col-span-2">
             <ProgressCard progress={progress} badges={badges} />
@@ -61,20 +61,20 @@ const Index = () => {
         </div>
 
         {/* Daily Content Section */}
-        <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
+        <h2 className="text-lg md:text-xl font-bold text-foreground mb-4 flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-primary" />
           Today's Learning Content
         </h2>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-8 md:mb-10">
           <DailyPlaylist content={dailyContentDay1} />
           <PodcastCard podcast={dailyContentDay1.podcast} />
         </div>
 
         {/* Recommended Goals */}
-        <h2 className="text-xl font-bold text-foreground mb-4">
+        <h2 className="text-lg md:text-xl font-bold text-foreground mb-4">
           Explore More Goals
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {recommendedGoals.map((goal, index) => (
             <GoalCard key={goal.id} goal={goal} index={index} />
           ))}
