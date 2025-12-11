@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
-import { CalendarIcon, Headphones, Sparkles } from 'lucide-react';
+import { CalendarIcon, Headphones, Sparkles, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Calendar } from '@/components/ui/calendar';
@@ -15,6 +15,7 @@ export default function Welcome() {
   const [name, setName] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState<Date>();
   const [isLoading, setIsLoading] = useState(false);
+  const [isGuestLoading, setIsGuestLoading] = useState(false);
 
   const handleGetStarted = async () => {
     if (!name.trim()) {
@@ -28,13 +29,11 @@ export default function Welcome() {
 
     setIsLoading(true);
     try {
-      // Sign in anonymously
       const { data: authData, error: authError } = await supabase.auth.signInAnonymously();
       
       if (authError) throw authError;
       
       if (authData.user) {
-        // Create/update profile with name and DOB
         const { error: profileError } = await supabase
           .from('profiles')
           .upsert({
@@ -57,6 +56,51 @@ export default function Welcome() {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleGuestLogin = async () => {
+    setIsGuestLoading(true);
+    try {
+      const { data: authData, error: authError } = await supabase.auth.signInAnonymously();
+      
+      if (authError) throw authError;
+      
+      if (authData.user) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .upsert({
+            user_id: authData.user.id,
+            name: 'Guest',
+            onboarding_completed: true
+          }, { onConflict: 'user_id' });
+
+        if (profileError) throw profileError;
+
+        const { error: prefsError } = await supabase
+          .from('user_preferences')
+          .upsert({
+            user_id: authData.user.id,
+            daily_minutes_goal: 15,
+            monthly_courses_goal: 1,
+            goal_frequency: 'daily',
+            learning_purpose: 'curiosity',
+            selected_categories: ['personal']
+          }, { onConflict: 'user_id' });
+
+        if (prefsError) throw prefsError;
+
+        navigate('/home');
+      }
+    } catch (error: any) {
+      console.error('Error:', error);
+      toast({ 
+        title: 'Something went wrong', 
+        description: error.message,
+        variant: 'destructive' 
+      });
+    } finally {
+      setIsGuestLoading(false);
     }
   };
 
@@ -121,7 +165,7 @@ export default function Welcome() {
 
           <Button 
             onClick={handleGetStarted} 
-            disabled={isLoading}
+            disabled={isLoading || isGuestLoading}
             className="w-full h-12 text-lg font-semibold"
             size="lg"
           >
@@ -131,6 +175,32 @@ export default function Welcome() {
               <>
                 <Sparkles className="mr-2 h-5 w-5" />
                 Get Started
+              </>
+            )}
+          </Button>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">or</span>
+            </div>
+          </div>
+
+          <Button 
+            onClick={handleGuestLogin} 
+            disabled={isLoading || isGuestLoading}
+            variant="outline"
+            className="w-full h-12 text-lg font-semibold"
+            size="lg"
+          >
+            {isGuestLoading ? (
+              <div className="animate-spin w-5 h-5 border-2 border-primary border-t-transparent rounded-full" />
+            ) : (
+              <>
+                <UserCircle className="mr-2 h-5 w-5" />
+                Continue as Guest
               </>
             )}
           </Button>
